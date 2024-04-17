@@ -1,38 +1,51 @@
 <template>
   <div class="sidebar">
-    <form
-      class="flex"
+    <el-form
+      class="room-form flex-column-center"
       v-if="store.loggedIn"
       action="#"
-      @submit.prevent="handleNewRoom"
+      @submit.prevent
+      @keydown.enter.prevent
     >
-      <input
+      <el-input
+        class="room-input"
         type="text"
         name="compainion"
-        v-model="compainionUser"
-        placeholder="new chat with user"
+        v-model="roomName"
+        placeholder="search"
       />
-      <button type="submit" :disabled="submitDisabled">Chat</button>
-    </form>
-    <ul v-for="room in store.rooms">
-      <li class="room" @click="handleRoomSelected(room)">
+      <el-button
+        v-if="noRooms && !loading"
+        type="primary"
+        :disabled="submitDisabled"
+        @click="handleNewRoom"
+      >
+        Chat
+      </el-button>
+    </el-form>
+    <el-container v-loading="loading" class="room-container">
+      <span
+        v-for="room in rooms"
+        class="room"
+        :class="{ selected: room.room_id === store.currentRoom.room_id }"
+        @click="handleRoomSelected(room)"
+      >
         {{ getRoomName(room) }}
-      </li>
-    </ul>
+      </span>
+    </el-container>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from "vue";
+import { ref, computed, onMounted, nextTick } from "vue";
 import { useChatStore } from "../stores/chatStore";
 import { createRoom } from "../api/roomApi";
-import { storeToRefs } from "pinia";
 
 const SELF_ROOM_NAME = "Saved Messages";
 
 const store = useChatStore();
-const { user } = storeToRefs(store);
-const compainionUser = ref("");
+const roomName = ref("");
+const loading = ref(true);
 const submitDisabled = ref(false);
 
 function getRoomName(room) {
@@ -47,20 +60,16 @@ function getRoomName(room) {
 }
 
 function handleRoomSelected(room) {
-  store.setFlag(false);
-
+  store.setRoomSelected(false);
   nextTick(() => {
     store.setCurrentRoom(room);
-
-    nextTick(() => {
-      store.setFlag(true);
-    });
+    store.setRoomSelected(true);
   });
 }
 
 async function handleNewRoom() {
   submitDisabled.value = true;
-  const [passed, data] = await createRoom(store.user.id, compainionUser.value);
+  const [passed, data] = await createRoom(store.user.id, roomName.value);
   if (passed) {
     data.users = data.users.filter((u) => u.id !== store.user.id);
     store.setCurrentRoom(data);
@@ -68,12 +77,24 @@ async function handleNewRoom() {
   } else {
     alert(data);
   }
-  compainionUser.value = "";
+  roomName.value = "";
   submitDisabled.value = false;
 }
 
-watch(user, async () => {
-  store.refreshRooms();
+const rooms = computed(() => {
+  if (!roomName.value) {
+    return store.rooms;
+  }
+  return store.rooms.filter((r) => getRoomName(r).startsWith(roomName.value));
+});
+
+const noRooms = computed(() => {
+  return rooms.value.length === 0;
+});
+
+onMounted(async () => {
+  await store.refreshRooms();
+  loading.value = false;
 });
 </script>
 
@@ -81,13 +102,26 @@ watch(user, async () => {
 .sidebar {
   flex: 1;
   overflow-y: auto;
+  padding-right: 10px;
+}
+
+.room-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.room-input {
+  margin-bottom: 10px;
 }
 .room {
   padding: 10px 20px;
-  border: 1px solid black;
+
   cursor: pointer;
 }
 .room:hover {
   background-color: aliceblue;
+}
+.selected {
+  background-color: #c8e3f9;
 }
 </style>

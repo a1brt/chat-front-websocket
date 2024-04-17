@@ -1,9 +1,14 @@
 <template>
-  <div class="container">
-    <Sidebar />
-    <div class="chat-content ">
-      <UserField />
-      <ChatRoom v-if="store.flag"/>
+  <div
+    class="container"
+    :style="{
+      boxShadow: `--el-box-shadow-light)`,
+    }"
+  >
+    <UserField />
+    <div v-if="store.loggedIn" class="chat-content">
+      <Sidebar />
+      <ChatRoom />
     </div>
   </div>
 </template>
@@ -15,7 +20,6 @@ import Sidebar from "./Sidebar.vue";
 import { useChatStore } from "../stores/chatStore";
 
 const store = useChatStore();
-
 </script>
 
 <style scoped>
@@ -24,16 +28,17 @@ const store = useChatStore();
   top: 10%;
   left: 20%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   padding: 20px;
   width: 60%;
-  height: 80%;
+  box-shadow: var(--el-box-shadow-light);
+  background-color: white;
 }
 
-.chat-content{
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    flex: 3;
+.chat-content {
+  display: flex;
+  max-height: 400px;
+  flex: 3;
 }
 </style>

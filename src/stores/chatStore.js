@@ -1,13 +1,12 @@
 import { defineStore } from "pinia";
 import { getUserRooms } from "../api/roomApi";
-import { getRoomsMessages } from "../api/messageApi";
 
 export const useChatStore = defineStore("chat", {
   state: () => ({
     user: {},
     currentRoom: {},
     rooms: [],
-    flag:false
+    roomSelected:false
   }),
   actions: {
     setUser(user) {
@@ -19,8 +18,9 @@ export const useChatStore = defineStore("chat", {
     setRooms(rooms) {
       this.rooms = rooms;
     },
-    setFlag(fl){
-      this.flag = fl
+    setRoomSelected(changed){
+
+      this.roomSelected = changed
     },
     async refreshRooms() {
       const data = await getUserRooms(this.user.id);
@@ -29,9 +29,5 @@ export const useChatStore = defineStore("chat", {
   },
   getters: {
     loggedIn: (state) => Object.keys(state.user).length !== 0, //checks if user is set
-    roomSelected: (state) => Object.keys(state.currentRoom).length !== 0, 
-    // currentRoomMessages: async (state) =>
-    //   {console.log(state.currentRoom);
-    //     await getRoomsMessages(state.currentRoom.room_id)},
   },
 });

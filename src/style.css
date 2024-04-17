@@ -1,5 +1,6 @@
 * {
   box-sizing: border-box;
+  font-family: 'Poppins';
 }
 
 html,
@@ -8,6 +9,7 @@ body,
   height: 100%;
   width: 100%;
   margin: 0;
+  background-color: #62c9f8;
 }
 
 h1 {
@@ -22,9 +24,6 @@ ul {
 
 input{
   min-width: 0;
-}
-.flex{
-  display: flex;
 }
 
 .flex-column-center {
