@@ -1,6 +1,6 @@
 <template>
   <div class="current-chat">
-    <el-container v-loading="loading" class="messages">
+    <el-container v-loading="loading" id="messages" class="messages">
       <span
         v-for="message in messages"
         class="message"
@@ -10,6 +10,7 @@
         {{ message.content }}
       </span>
     </el-container>
+
     <el-form
       action="#"
       class="message-field"
@@ -28,7 +29,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUpdated } from "vue";
 import { useChatStore } from "../stores/chatStore";
 import { getRoomsMessages, createMessage } from "../api/messageApi";
 import { storeToRefs } from "pinia";
@@ -53,12 +54,13 @@ async function handleSendMessage() {
   }
   inputDisabled.value = false;
   messageInput.value = "";
+  scrollToBottom();
 }
 
 onMounted(async () => {
   messages.value = await getRoomsMessages(currentRoom.value.room_id);
   loading.value = false;
-  console.log(messages.value);
+
   window.Echo.channel(`chat-rooms-${store.currentRoom.room_id}`).listen(
     ".message-sent",
     (e) => {
@@ -66,6 +68,16 @@ onMounted(async () => {
     }
   );
 });
+
+onUpdated(() => {
+  scrollToBottom();
+});
+
+function scrollToBottom() {
+  const element = document.getElementById("messages");
+  console.log(element.scrollHeight);
+  element.scrollTop = element.scrollHeight;
+}
 </script>
 
 <style scoped>

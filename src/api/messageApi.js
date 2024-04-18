@@ -4,10 +4,8 @@ async function getRoomsMessages(room_id) {
   const url = `${import.meta.env.VITE_BASE_URL}/rooms/${room_id}/messages`;
   try {
     const response = await axios.get(url);
-    console.log(response);
     return response.data;
   } catch (error) {
-   // console.error("Error:", error.response.data);
     return error.response.data.message;
   }
 }

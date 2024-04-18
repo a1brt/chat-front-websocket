@@ -60,9 +60,11 @@ function getRoomName(room) {
 }
 
 function handleRoomSelected(room) {
+  if (room.room_id === store.currentRoom.room_id) return;
   store.setRoomSelected(false);
   nextTick(() => {
     store.setCurrentRoom(room);
+
     store.setRoomSelected(true);
   });
 }
